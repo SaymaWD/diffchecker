@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Text Difference Highlighter</title>
+    <script src="https://cdn.jsdelivr.net/npm/diff@5.1.0/dist/diff.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-[#0F0B27] p-8 font-sans">
+
+    <div class="max-w-4xl mx-auto bg-[#1A1B3A] p-6 rounded-lg shadow-2xl shadow-black/30">
+        <h1 class="text-2xl font-bold text-center text-white mb-6">Text Difference Highlighter</h1>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            
+            <div>
+                <div class="flex justify-between items-center mb-2">
+                    <label for="text1" class="block text-sm font-medium text-[#F8FAFC]">Original Text</label>
+                    <label for="file1" class="text-sm bg-[#252650] text-[#F8FAFC]/80 py-1 px-3 rounded-md cursor-pointer hover:bg-[#6366F1]/50 transition-colors">
+                        📂 Upload File
+                    </label>
+                    <input type="file" id="file1" class="hidden" accept=".txt,text/plain">
+                </div>
+                <textarea id="text1" class="w-full h-48 p-3 border border-[#252650] rounded-md focus:ring-2 focus:ring-[#6366F1] focus:border-[#6366F1] bg-[#0F0B27] text-white placeholder:text-[#F8FAFC]/50" placeholder="Enter original text or upload a .txt file..."></textarea>
+            </div>
+
+            <div>
+                <div class="flex justify-between items-center mb-2">
+                    <label for="text2" class="block text-sm font-medium text-[#F8FAFC]">Modified Text</label>
+                    <label for="file2" class="text-sm bg-[#252650] text-[#F8FAFC]/80 py-1 px-3 rounded-md cursor-pointer hover:bg-[#6366F1]/50 transition-colors">
+                        📂 Upload File
+                    </label>
+                    <input type="file" id="file2" class="hidden" accept=".txt,text/plain">
+                </div>
+                <textarea id="text2" class="w-full h-48 p-3 border border-[#252650] rounded-md focus:ring-2 focus:ring-[#6366F1] focus:border-[#6366F1] bg-[#0F0B27] text-white placeholder:text-[#F8FAFC]/50" placeholder="Enter modified text or upload a .txt file..."></textarea>
+            </div>
+        </div>
+        
+        <div class="mt-6 text-center">
+            <button id="compareBtn" class="bg-[#6366F1] text-white font-bold py-2 px-6 rounded-md hover:bg-[#4F46E5] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-[#1A1B3A] focus:ring-[#6366F1] transition-transform duration-200 hover:scale-105">Compare</button>
+        </div>
+        
+        <div id="diffOutput" class="mt-8 border border-[#252650] rounded-md bg-[#0F0B27] min-h-[100px] overflow-x-auto">
+            </div>
+    </div>
+
+    <script>
+        // --- NEW: File Upload Logic ---
+        function handleFileUpload(fileInputId, textareaId) {
+            const fileInput = document.getElementById(fileInputId);
+            const textarea = document.getElementById(textareaId);
+
+            fileInput.addEventListener('change', function(event) {
+                const file = event.target.files[0];
+                if (!file) {
+                    return;
+                }
+                
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    textarea.value = e.target.result;
+                };
+                reader.readAsText(file);
+
+                // Reset file input to allow uploading the same file again
+                event.target.value = '';
+            });
+        }
+
+        handleFileUpload('file1', 'text1');
+        handleFileUpload('file2', 'text2');
+
+
+        // --- Existing Comparison Logic (Unchanged) ---
+        document.getElementById('compareBtn').addEventListener('click', function() {
+            const text1 = document.getElementById('text1').value;
+            const text2 = document.getElementById('text2').value;
+            const lineDiff = Diff.diffLines(text1, text2);
+            
+            const outputDiv = document.getElementById('diffOutput');
+            outputDiv.innerHTML = '';
+
+            const table = document.createElement('table');
+            table.className = 'w-full text-left border-collapse';
+            const tbody = document.createElement('tbody');
+            
+            let leftLineNum = 1;
+            let rightLineNum = 1;
+
+            const generateWordDiff = (leftLine, rightLine) => {
+                const wordDiff = Diff.diffWords(leftLine, rightLine);
+                let leftContent = '';
+                let rightContent = '';
+
+                wordDiff.forEach(part => {
+                    const sanitizedValue = part.value.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+                    if (part.added) {
+                        rightContent += `<span class="bg-green-500/40 text-green-100 rounded-sm">${sanitizedValue}</span>`;
+                    } else if (part.removed) {
+                        leftContent += `<span class="bg-red-500/40 text-red-100 rounded-sm">${sanitizedValue}</span>`;
+                    } else {
+                        leftContent += `<span class="text-[#F8FAFC]/90">${sanitizedValue}</span>`;
+                        rightContent += `<span class="text-[#F8FAFC]/90">${sanitizedValue}</span>`;
+                    }
+                });
+                return { leftContent, rightContent };
+            };
+
+            for (let i = 0; i < lineDiff.length; i++) {
+                const part = lineDiff[i];
+                const lines = part.value.replace(/\n$/, '').split('\n');
+
+                if (part.removed && i + 1 < lineDiff.length && lineDiff[i + 1].added) {
+                    const addedPart = lineDiff[i + 1];
+                    const addedLines = addedPart.value.replace(/\n$/, '').split('\n');
+                    const maxLines = Math.max(lines.length, addedLines.length);
+
+                    for (let j = 0; j < maxLines; j++) {
+                        const row = document.createElement('tr');
+                        const leftLine = lines[j] || '';
+                        const rightLine = addedLines[j] || '';
+                        
+                        const { leftContent, rightContent } = generateWordDiff(leftLine, rightLine);
+
+                        row.className = 'bg-blue-900/30';
+                        row.innerHTML = `
+                            <td class="w-10 px-2 py-1 border-r border-[#252650] bg-[#1A1B3A] text-[#F8FAFC] text-center">${leftLineNum++}</td>
+                            <td class="px-2 py-1 border-r border-[#252650] font-mono whitespace-pre-wrap">${leftContent}</td>
+                            <td class="w-10 px-2 py-1 border-r border-[#252650] bg-[#1A1B3A] text-[#F8FAFC] text-center">${rightLineNum++}</td>
+                            <td class="px-2 py-1 font-mono whitespace-pre-wrap">${rightContent}</td>
+                        `;
+                        tbody.appendChild(row);
+                    }
+                    i++;
+                } else if (part.removed) {
+                    lines.forEach(line => {
+                        if (!line) return;
+                        const row = document.createElement('tr');
+                        row.className = 'bg-red-900/30';
+                        row.innerHTML = `
+                            <td class="w-10 px-2 py-1 border-r border-[#252650] bg-[#1A1B3A] text-[#F8FAFC] text-center">${leftLineNum++}</td>
+                            <td class="px-2 py-1 border-r border-[#252650] font-mono whitespace-pre-wrap"><span class="bg-red-500/40 text-red-100 rounded-sm">${line}</span></td>
+                            <td class="w-10 px-2 py-1 border-r border-[#252650] bg-[#1A1B3A] text-center text-[#F8FAFC]/40"></td>
+                            <td class="px-2 py-1 font-mono whitespace-pre-wrap"></td>
+                        `;
+                        tbody.appendChild(row);
+                    });
+                } else if (part.added) {
+                    lines.forEach(line => {
+                        if (!line) return;
+                        const row = document.createElement('tr');
+                        row.className = 'bg-green-900/30';
+                        row.innerHTML = `
+                            <td class="w-10 px-2 py-1 border-r border-[#252650] bg-[#1A1B3A] text-center text-[#F8FAFC]/40"></td>
+                            <td class="px-2 py-1 border-r border-[#252650] font-mono whitespace-pre-wrap"></td>
+                            <td class="w-10 px-2 py-1 border-r border-[#252650] bg-[#1A1B3A] text-[#F8FAFC] text-center">${rightLineNum++}</td>
+                            <td class="px-2 py-1 font-mono whitespace-pre-wrap"><span class="bg-green-500/40 text-green-100 rounded-sm">${line}</span></td>
+                        `;
+                        tbody.appendChild(row);
+                    });
+                } else { // Unchanged lines
+                    lines.forEach(line => {
+                        const row = document.createElement('tr');
+                        row.className = 'border-b border-t border-transparent hover:bg-white/5';
+                        row.innerHTML = `
+                            <td class="w-10 px-2 py-1 border-r border-[#252650] bg-[#1A1B3A] text-center text-[#F8FAFC]/60">${leftLineNum++}</td>
+                            <td class="px-2 py-1 border-r border-[#252650] font-mono whitespace-pre-wrap text-[#F8FAFC]">${line}</td>
+                            <td class="w-10 px-2 py-1 border-r border-[#252650] bg-[#1A1B3A] text-center text-[#F8FAFC]/60">${rightLineNum++}</td>
+                            <td class="px-2 py-1 font-mono whitespace-pre-wrap text-[#F8FAFC]">${line}</td>
+                        `;
+                        tbody.appendChild(row);
+                    });
+                }
+            }
+
+            table.appendChild(tbody);
+            outputDiv.appendChild(table);
+        });
+    </script>
+</body>
+</html>
