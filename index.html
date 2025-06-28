@@ -11,7 +11,7 @@
 
     <div class="max-w-4xl mx-auto bg-[#1A1B3A] p-6 rounded-lg shadow-2xl shadow-black/30">
         <h1 class="text-2xl font-bold text-center text-white mb-6">Text Difference Highlighter</h1>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div id="inputBoxes" class="grid grid-cols-1 md:grid-cols-2 gap-6">
             
             <div>
                 <div class="flex justify-between items-center mb-2">
@@ -73,6 +73,8 @@
 
         // --- Existing Comparison Logic (Unchanged) ---
         document.getElementById('compareBtn').addEventListener('click', function() {
+            // console.log(new Date);
+
             const text1 = document.getElementById('text1').value;
             const text2 = document.getElementById('text2').value;
             const lineDiff = Diff.diffLines(text1, text2);
@@ -175,6 +177,11 @@
 
             table.appendChild(tbody);
             outputDiv.appendChild(table);
+
+            window.setTimeout(function(){
+                document.getElementById('inputBoxes').style.display = 'none';
+            }, 500);
+                
         });
     </script>
 </body>
