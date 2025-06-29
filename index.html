@@ -9,42 +9,39 @@
 </head>
 <body class="bg-[#0F0B27] p-8 font-sans">
 
-<header class="bg-white shadow">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex justify-between h-16 items-center">
-            <!-- Logo -->
-            <div class="flex-shrink-0">
-                <a href="#" class="text-xl font-bold text-blue-600">MyLogo</a>
-            </div>
+<div class="w-full bg-gradient-to-r from-[#1A1B3A] via-[#2A2B4A] to-[#1A1B3A] text-white flex items-center justify-between px-6 py-3 shadow-md">
 
-            <!-- Navigation Links -->
-            <nav class="hidden md:flex space-x-6">
-                <a href="#" class="text-gray-700 hover:text-blue-600">Home</a>
-                <a href="#" class="text-gray-700 hover:text-blue-600">About</a>
-                <a href="#" class="text-gray-700 hover:text-blue-600">Services</a>
-                <a href="#" class="text-gray-700 hover:text-blue-600">Contact</a>
-            </nav>
+    <!-- Left: Title / Logo -->
+    <div class="text-lg font-semibold">
+        My Diffchecker
+    </div>
 
-            <!-- Call to Action Button -->
-            <div class="hidden md:block">
-                <a href="#" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">Sign Up</a>
-            </div>
-
-            <!-- Mobile Menu Icon -->
-            <div class="md:hidden">
-                <button class="text-gray-600 focus:outline-none">
-                    <!-- Hamburger icon -->
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2"
-                         viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M4 6h16M4 12h16M4 18h16"/>
-                    </svg>
-                </button>
-            </div>
+    <!-- Middle: Legend -->
+    <div class="flex gap-4 items-center">
+        <div class="flex items-center gap-1">
+            <div class="w-3 h-3 bg-green-500 rounded-full"></div>
+            <span class="text-sm">Active</span>
+        </div>
+        <div class="flex items-center gap-1">
+            <div class="w-3 h-3 bg-yellow-400 rounded-full"></div>
+            <span class="text-sm">Pending</span>
+        </div>
+        <div class="flex items-center gap-1">
+            <div class="w-3 h-3 bg-red-500 rounded-full"></div>
+            <span class="text-sm">Inactive</span>
         </div>
     </div>
-</header>
 
-    <div class="max-w-4xl mx-auto bg-[#1A1B3A] p-6 rounded-lg shadow-2xl shadow-black/30">
+    <!-- Right: Buttons -->
+    <div class="flex gap-2">
+        <a href="" class="bg-blue-600 hover:bg-blue-700 text-white text-sm px-4 py-1 rounded">Refresh</a>
+        <button class="bg-gray-700 hover:bg-gray-800 text-white text-sm px-4 py-1 rounded">Settings</button>
+        <button class="bg-red-600 hover:bg-red-700 text-white text-sm px-4 py-1 rounded">Logout</button>
+    </div>
+</div>
+
+
+<div class="max-w-4xl mx-auto bg-[#1A1B3A] p-6 rounded-lg shadow-2xl shadow-black/30">
         <h1 class="text-2xl font-bold text-center text-white mb-6">Text Difference Highlighter</h1>
         <div id="inputBoxes" class="grid grid-cols-1 md:grid-cols-2 gap-6">
             
@@ -73,7 +70,6 @@
         
         <div class="mt-6 text-center">
             <button id="compareBtn" class="bg-[#6366F1] text-white font-bold py-2 px-6 rounded-md hover:bg-[#4F46E5] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-[#1A1B3A] focus:ring-[#6366F1] transition-transform duration-200 hover:scale-105">Compare</button>
-            <a href="" id="reloadBtn" class="bg-[#6366F1] text-white font-bold py-2 px-6 rounded-md hover:bg-[#1E33E5] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-[#1A1B3A] focus:ring-[#6366F1] transition-transform duration-200 hover:scale-105">Reload</a>
         </div>
         
         <div id="diffOutput" class="mt-8 border border-[#252650] rounded-md bg-[#0F0B27] min-h-[100px] overflow-x-auto">
